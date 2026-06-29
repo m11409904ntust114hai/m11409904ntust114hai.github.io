@@ -10,42 +10,6 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
         /* 此頁面專屬樣式，延伸自 style.css 的藏青/金色主題 */
-        .sheet-config {
-            background: #fffdf8;
-            border: 1px solid rgba(214, 169, 44, 0.3);
-            border-radius: 15px;
-            box-shadow: 0 8px 24px var(--shadow-navy);
-            padding: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
-        .sheet-config label {
-            font-weight: 600;
-            color: var(--navy-deep);
-            margin-bottom: 0.4rem;
-            display: block;
-        }
-        .sheet-config small.hint { color: var(--ink-soft); }
-        .sheet-input {
-            border: 2px solid var(--cream-deep);
-            border-radius: 50px;
-            padding: 10px 20px;
-        }
-        .sheet-input:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(202,164,164,0.2);
-            outline: none;
-        }
-        .btn-apply {
-            background: var(--gradient-navy);
-            color: #fffdf8;
-            border: none;
-            border-radius: 50px;
-            padding: 10px 24px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-apply:hover { color: var(--gold-light); transform: translateY(-2px); }
-
         .stats-row { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
         .stat-card {
             flex: 1; min-width: 160px;
@@ -147,27 +111,6 @@
     <section class="section">
         <div class="container">
 
-            <!-- Google Sheet 資料來源設定 -->
-            <div class="sheet-config">
-                <label for="sheetInput"><i class="fas fa-table me-1"></i> Google Sheet 資料來源</label>
-                <small class="hint">貼上 Google Sheet 的網址或 ID（須將分享權限設為「知道連結的人均可檢視」）</small>
-                <div class="row g-2 mt-2 align-items-center">
-                    <div class="col-12 col-md-5">
-                        <input type="text" class="sheet-input form-control" id="sheetInput"
-                               placeholder="例如：https://docs.google.com/spreadsheets/d/13fpu.../edit 或直接貼 ID">
-                    </div>
-                    <div class="col-12 col-md-3">
-                        <input type="password" class="sheet-input form-control" id="sheetPassword"
-                               placeholder="密碼（當天日期4位數，例如0701）" maxlength="4" inputmode="numeric">
-                    </div>
-                    <div class="col-12 col-md-4 d-flex gap-2">
-                        <button class="btn-apply flex-grow-1" onclick="applySheetId()">
-                            <i class="fas fa-check me-1"></i> 套用並載入
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <div class="stats-row">
                 <div class="stat-card"><div class="stat-number" id="totalStudents">0</div><div class="stat-label">Total Students</div></div>
                 <div class="stat-card"><div class="stat-number" id="displayedCount">0</div><div class="stat-label">Currently Shown</div></div>
@@ -205,55 +148,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
         const FALLBACK_PHOTO = "https://ntust2026.github.io/pic/1.jpg";
-        const DEFAULT_SHEET_ID = "13fpucdLotsmOh6JuYugqO8zvMQjvgsq_KXNdbqnui6Y";
-        const STORAGE_KEY = "ntust2026_sheet_id";
-
-        let SHEET_ID = localStorage.getItem(STORAGE_KEY) || DEFAULT_SHEET_ID;
+        const SHEET_ID = "1-HVb7uFlG9em6EAdYLnLOZLLDiWH4hUECK42lafnVys";
         let students = [];
         let filteredStudents = [];
-
-        // 從輸入框（網址或 ID）解析出 Google Sheet ID
-        function extractSheetId(input) {
-            input = (input || '').trim();
-            if (!input) return null;
-            const match = input.match(/\/d\/([a-zA-Z0-9_-]+)/);
-            if (match) return match[1];
-            // 假設使用者直接貼上純 ID
-            if (/^[a-zA-Z0-9_-]{20,}$/.test(input)) return input;
-            return null;
-        }
-
-        // 取得今天的日期密碼（MMDD，例如 7 月 1 日 => 0701）
-        function getTodayPassword() {
-            const now = new Date();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            return mm + dd;
-        }
-
-        function applySheetId() {
-            const raw = document.getElementById('sheetInput').value;
-            const pwd = document.getElementById('sheetPassword').value.trim();
-            const status = document.getElementById('refreshStatus');
-
-            const correctPwd = getTodayPassword();
-            if (pwd !== correctPwd) {
-                status.className = 'refresh-status error';
-                status.textContent = '❌ 密碼錯誤，請輸入當天日期的4位數密碼（例如7月1日為0701）';
-                return;
-            }
-
-            const id = extractSheetId(raw);
-            if (!id) {
-                status.className = 'refresh-status error';
-                status.textContent = '❌ 無法解析 Google Sheet 網址或 ID，請確認格式';
-                return;
-            }
-            SHEET_ID = id;
-            localStorage.setItem(STORAGE_KEY, id);
-            document.getElementById('sheetPassword').value = '';
-            fetchFromGoogleSheet();
-        }
 
         function fetchFromGoogleSheet() {
             const btn = document.getElementById('refreshBtn');
@@ -374,8 +271,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            document.getElementById('sheetInput').placeholder =
-                '目前使用：' + SHEET_ID.substring(0, 12) + '...（可貼新網址或 ID 後按套用）';
             document.getElementById('searchInput').addEventListener('input', filterStudents);
             fetchFromGoogleSheet();
         });
